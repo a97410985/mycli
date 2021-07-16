@@ -1,8 +1,10 @@
 import sqlparse
 from sqlparse.sql import Comparison, Identifier, Where
+from sqlparse.tokens import Punctuation
 from .parseutils import last_word, extract_tables, find_prev_keyword
 from .special import parse_special_command
 
+suggestion_table_tuple = ("copy", "from", "update", "into", "describe", "truncate", "desc", "explain")
 
 def suggest_type(full_text, text_before_cursor):
     """Takes the full_text that is typed so far and also the text before the
@@ -73,6 +75,21 @@ def suggest_type(full_text, text_before_cursor):
             return suggest_special(text_before_cursor)
 
     last_token = statement and statement.token_prev(len(statement.tokens))[1] or ""
+
+    # this is for database suggestion. Combined with a token after text cursor
+    # ex: 「insert into .t1」 when cursor after 「insert into 」
+    if word_before_cursor == "":
+        parsed_result = sqlparse.parse(full_text[len(text_before_cursor) :])
+        if len(parsed_result) > 0:
+            parsed_back = parsed_result[0]
+            token_after_text_cursor = parsed_back.tokens[0]
+            if (
+                token_after_text_cursor.ttype == Punctuation
+                and token_after_text_cursor.value == "."
+                and str(last_token) in suggestion_table_tuple
+            ):
+                # need suggest database type
+                return [{"type": "database"}]
 
     return suggest_based_on_last_token(
         last_token, text_before_cursor, full_text, identifier
@@ -224,7 +241,7 @@ def suggest_based_on_last_token(token, text_before_cursor, full_text, identifier
             ]
     elif (token_v.endswith("join") and token.is_keyword) or (
         token_v
-        in ("copy", "from", "update", "into", "describe", "truncate", "desc", "explain")
+        in suggestion_table_tuple
     ):
         schema = (identifier and identifier.get_parent_name()) or []
 

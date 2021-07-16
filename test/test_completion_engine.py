@@ -670,3 +670,8 @@ def test_order_by():
     text = "select * from foo order by "
     suggestions = suggest_type(text, text)
     assert suggestions == [{"tables": [(None, "foo", None)], "type": "column"}]
+
+
+def test_suggestion_database_before_table():
+    suggestions = suggest_type("insert into .t1", "insert into ")
+    assert suggestions == [{"type": "database"}]
