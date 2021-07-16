@@ -12,7 +12,10 @@ class Paramiko:
     def __getattr__(self, name):
         import sys
         from textwrap import dedent
-        print(dedent("""
+
+        print(
+            dedent(
+                """
             To enable certain SSH features you need to install paramiko:
             
                pip install paramiko
@@ -21,7 +24,9 @@ class Paramiko:
                 --list-ssh-config
                 --ssh-config-host
                 --ssh-host
-        """))
+        """
+            )
+        )
         sys.exit(1)
 
 
