@@ -685,3 +685,20 @@ def test_suggestion_database_before_table_with_text():
 def test_suggestion_database_before_table_with_empty_table():
     suggestions = suggest_type("insert into .", "insert into ")
     assert suggestions == [{"type": "database", "table": ""}]
+
+
+def test_suggestion_session_variables_with_only_at_symbol():
+    suggestions = suggest_type("select @@", "select @@")
+    assert suggestions == [{"type": "session", "scope": "both"}]
+
+def test_suggestion_session_variables_with_at_symbol_and_text():
+    suggestions = suggest_type("select @@gtid", "select @@gtid")
+    assert suggestions == [{"type": "session", "scope": "both"}]
+
+def test_suggestion_session_variables_with_at_symbol_and_global():
+    suggestions = suggest_type("select @@global.", "select @@global.")
+    assert suggestions == [{"type": "session", "scope": "global"}]
+
+def test_suggestion_session_variables_with_at_symbol_and_session():
+    suggestions = suggest_type("select @@session.", "select @@session.")
+    assert suggestions == [{"type": "session", "scope": "session"}]
