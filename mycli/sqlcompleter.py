@@ -1,6 +1,7 @@
 import logging
 from re import compile, escape
 from collections import Counter
+from typing import List, Tuple
 
 from prompt_toolkit.completion import Completer, Completion
 
@@ -343,11 +344,15 @@ class SQLCompleter(Completer):
             metadata[self.dbname][func[0]] = None
             self.all_completions.add(func[0])
 
+    def extend_tables(self, table_data):
+        self.database_tables.extend(table_data)
+
     def set_dbname(self, dbname):
         self.dbname = dbname
 
     def reset_completions(self):
         self.databases = []
+        self.database_tables: List[Tuple[str, str]] = []
         self.users = []
         self.show_items = []
         self.dbname = ""

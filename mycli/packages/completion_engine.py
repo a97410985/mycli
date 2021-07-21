@@ -4,7 +4,17 @@ from sqlparse.tokens import Punctuation
 from .parseutils import last_word, extract_tables, find_prev_keyword
 from .special import parse_special_command
 
-suggestion_table_tuple = ("copy", "from", "update", "into", "describe", "truncate", "desc", "explain")
+suggestion_table_tuple = (
+    "copy",
+    "from",
+    "update",
+    "into",
+    "describe",
+    "truncate",
+    "desc",
+    "explain",
+)
+
 
 def suggest_type(full_text, text_before_cursor):
     """Takes the full_text that is typed so far and also the text before the
@@ -78,10 +88,14 @@ def suggest_type(full_text, text_before_cursor):
 
     # this is for database suggestion. Combined with a token after text cursor
     # ex: 「insert into .t1」 when cursor after 「insert into 」
-    if word_before_cursor == "":
-        parsed_result = sqlparse.parse(full_text[len(text_before_cursor) :])
-        if len(parsed_result) > 0:
-            parsed_back = parsed_result[0]
+    full_text_parsed_result = sqlparse.parse(full_text[len(text_before_cursor) :])
+    if len(full_text_parsed_result) > 0:
+        parsed_back = full_text_parsed_result[0]
+        if len(parsed_back.tokens) > 0:
+            parsed_back = full_text_parsed_result[0]
+            table = ""
+            if len(parsed_back.tokens) > 1:
+                table = str(parsed_back.tokens[1])
             token_after_text_cursor = parsed_back.tokens[0]
             if (
                 token_after_text_cursor.ttype == Punctuation
@@ -89,7 +103,7 @@ def suggest_type(full_text, text_before_cursor):
                 and str(last_token) in suggestion_table_tuple
             ):
                 # need suggest database type
-                return [{"type": "database"}]
+                return [{"type": "database", "table": table}]
 
     return suggest_based_on_last_token(
         last_token, text_before_cursor, full_text, identifier
@@ -240,8 +254,7 @@ def suggest_based_on_last_token(token, text_before_cursor, full_text, identifier
                 {"type": "keyword"},
             ]
     elif (token_v.endswith("join") and token.is_keyword) or (
-        token_v
-        in suggestion_table_tuple
+        token_v in suggestion_table_tuple
     ):
         schema = (identifier and identifier.get_parent_name()) or []
 

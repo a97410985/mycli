@@ -674,4 +674,14 @@ def test_order_by():
 
 def test_suggestion_database_before_table():
     suggestions = suggest_type("insert into .t1", "insert into ")
-    assert suggestions == [{"type": "database"}]
+    assert suggestions == [{"type": "database", "table": "t1"}]
+
+
+def test_suggestion_database_before_table_with_text():
+    suggestions = suggest_type("insert into t.t1", "insert into t")
+    assert suggestions == [{"type": "database", "table": "t1"}]
+
+
+def test_suggestion_database_before_table_with_empty_table():
+    suggestions = suggest_type("insert into .", "insert into ")
+    assert suggestions == [{"type": "database", "table": ""}]

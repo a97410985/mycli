@@ -139,6 +139,11 @@ def refresh_functions(completer, executor):
     completer.extend_functions(executor.functions())
 
 
+@refresher("database_tables")
+def refresh_database_tables(completer, executor):
+    completer.extend_tables(executor.database_tables())
+
+
 @refresher("special_commands")
 def refresh_special(completer, executor):
     completer.extend_special_commands(COMMANDS.keys())

@@ -105,6 +105,10 @@ class SQLExecute(object):
                                     where table_schema = '%s'
                                     order by table_name,ordinal_position"""
 
+    database_tables_query = (
+        """select TABLE_SCHEMA, TABLE_NAME from information_schema.TABLES"""
+    )
+
     def __init__(
         self,
         database,
@@ -354,6 +358,14 @@ class SQLExecute(object):
         with self.conn.cursor() as cur:
             _logger.debug("Columns Query. sql: %r", self.table_columns_query)
             cur.execute(self.table_columns_query % self.dbname)
+            for row in cur:
+                yield row
+
+    def database_tables(self):
+        """Yields (table name, column name) pairs"""
+        with self.conn.cursor() as cur:
+            _logger.debug("Tables Query. sql: %r", self.database_tables_query)
+            cur.execute(self.database_tables_query % self.dbname)
             for row in cur:
                 yield row
 
