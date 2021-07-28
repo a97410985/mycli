@@ -699,6 +699,10 @@ def test_suggestion_session_variables_with_at_symbol_and_global():
     suggestions = suggest_type("select @@global.", "select @@global.")
     assert suggestions == [{"type": "session", "scope": "global"}]
 
+def test_suggestion_session_variables_with_at_symbol_and_global_with_text():
+    suggestions = suggest_type("select @@global.err", "select @@global.err")
+    assert suggestions == [{"type": "session", "scope": "global"}]
+
 def test_suggestion_session_variables_with_at_symbol_and_session():
     suggestions = suggest_type("select @@session.", "select @@session.")
     assert suggestions == [{"type": "session", "scope": "session"}]

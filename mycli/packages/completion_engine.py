@@ -117,9 +117,9 @@ def suggest_type(full_text, text_before_cursor):
                 # @@adsjfoj => just the text is neither global nor session 
                 # @@global.
                 # @@session.
-                if tokens[1].value == "global.":
+                if tokens[1].value.startswith("global."):
                     return [{"type": "session", "scope": "global"}] 
-                elif tokens[1].value == "session.":
+                elif tokens[1].value.startswith("session."):
                     return [{"type": "session", "scope": "session"}]  
                 else:
                     # may need more work such as suggestion global or session text!!
